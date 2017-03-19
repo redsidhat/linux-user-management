@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>User Management</title>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <div id="container">
+            <div class="title">
+                <h1>Choose an action</h1>
+            </div>
+            <div id="content">
+                <form method="post" action="{{ url_for('manage_user') }}">
+
+                  <input type="radio" name="manageAction" value="add" checked> Add User<br>
+                  <input type="radio" name="manageAction" value="modify"> Modify User<br>
+                  <input type="radio" name="manageAction" value="remove"> Remove User  
+                  <input type="submit" />
+                </form>
+            </div>
+    </body>
+</html>
+ 
