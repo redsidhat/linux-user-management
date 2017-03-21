@@ -17,6 +17,8 @@ def listUser():
     user_list = os.popen('awk -F: \'$2 != "*" && $2 !~ /^!/ { print $1}\' /etc/shadow').read()
     return user_list.split()
 
+def deleteUser(user):
+    return os.system("userdel -r -f " + user)
 
 @app.route('/')
 def form():
@@ -51,9 +53,16 @@ def add_user():
 def modify_user():
     return "Modifying user"
 
+
 @app.route('/removeuser/', methods=['POST'])
 def remove_user():
-    return "Removing user"
+    user_name = request.form['userName']
+    status = deleteUser(user_name)
+    if status == 0:
+        return "User removed successfully"
+    else:
+        return "Error removing user"
+    
 
 if __name__ == '__main__':
   app.run()

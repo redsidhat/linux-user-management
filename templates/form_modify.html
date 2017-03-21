@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>User Management</title>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <div id="container">
+            <div class="title">
+                <h1>Enter the details of the user to be added.</h1>
+            </div>
+            <div id="content">
+                <form method="post" action="{{ url_for('add_user') }}">
+
+                  <input type="text" name="userName" > Username<br>
+                  <input type="text" name="fullName" > Full Name<br>
+                  <input type="text" name="homeDir" > Home Directory<br>
+                  <input type="text" name="shellType" > Shell<br> 
+                  <input type="radio" name="userSudo" value="True" > True
+                  <input type="radio" name="userSudo" value="Frue" > False   : Sudo<br>
+                  <input type="password" name="userPassword" > Password<br>  
+                  <input type="submit" />
+                </form>
+            </div>
+    </body>
+</html>
