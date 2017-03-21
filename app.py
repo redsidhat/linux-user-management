@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, url_for
 import os
 import crypt
+from jinja2 import Template
 
 
 app = Flask(__name__)
@@ -14,7 +15,7 @@ def createUser(user,name,home,shell,password,sudo):
 
 def listUser():
     user_list = os.popen('awk -F: \'$2 != "*" && $2 !~ /^!/ { print $1}\' /etc/shadow').read()
-    return user_list
+    return user_list.split()
 
 
 @app.route('/')
@@ -27,10 +28,9 @@ def manage_user():
     manage_action = request.form['manageAction']
     if manage_action == 'add':
         return render_template('form_add.html')
-    if manage_action == 'modify':
-        return listUser()
-    if manage_action == 'remove':
-        return listUser()
+    else:
+        return render_template('form_list.html', users = listUser(), title = manage_action)
+
 
 @app.route('/adduser/', methods=['POST'])
 def add_user():
@@ -47,7 +47,13 @@ def add_user():
         return "Error creating user"
     #return "Username: %s <br> FullName: %s <br> HomeDir: %s <br> Password: %s" %(user_name,full_name,home_dir,user_password)
 
+@app.route('/modifyuser/', methods=['POST'])
+def modify_user():
+    return "Modifying user"
 
+@app.route('/removeuser/', methods=['POST'])
+def remove_user():
+    return "Removing user"
 
 if __name__ == '__main__':
   app.run()

@@ -1,0 +1,16 @@
+<html>
+	<body>
+        {% if title == "modify" %}
+            <h1>Choose a user to modify</h1>
+            <form method="post" action="{{ url_for('modify_user') }}">
+        {% elif title == "remove" %}
+            <h1>Choose a user to remove</h1>
+            <form method="post" action="{{ url_for('remove_user') }}">
+        {% endif %}
+        
+ 		{% for user in users %}			
+        <input type="radio" name="manageAction" value="{{ user }}" checked> {{ user }}<br>
+ 		{% endfor %}
+        <input type="submit" />
+    </body>
+ </html>
