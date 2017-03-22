@@ -9,7 +9,7 @@
                 <h1>Enter the details of the user to be modified.</h1>
             </div>
             <div id="content">
-                <form method="post" action="{{ url_for('add_user') }}">
+                <form method="post" action="{{ url_for('update_user') }}">
 
                   <input type="text" name="userName" value="{{ userdata.userName }}"> Username<br>
                   <input type="text" name="fullName" value="{{ userdata.fullName }}"> Full Name<br>
@@ -17,12 +17,12 @@
                   <input type="text" name="shellType" value="{{ userdata.shellType }}"> Shell<br> 
                   {% if userdata.userSudo %}
                     <input type="radio" name="userSudo" checked="checked"> True
-                    <input type="radio" name="userSudo" > False   : Sudo<br>
+                    <input type="radio" name="userSudo" > False     : Sudo<br>
                   {% else %}
                     <input type="radio" name="userSudo" > True
                     <input type="radio" name="userSudo" checked="checked" > False   : Sudo<br>
                   {% endif %}
-                  <input type="password" name="userPassword" > Password<br>  
+                  <input type="password" name="userPassword" value="really ?"> Password<br>  
                   <input type="submit" />
                 </form>
             </div>
