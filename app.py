@@ -22,10 +22,11 @@ app = Flask(__name__)
 
 def createUser(userdata):
 
-    encPass = crypt.crypt(userdata.userPassword,"22")   
+    encPass = crypt.crypt(userdata.userPassword, "22")
     if userdata.userSudo == "True":
-        return  os.system("useradd -p "+encPass+ " -s "+ userdata.shellType + " -d "+ userdata.homeDir + " -m " + " -c \"" + userdata.fullName + "\" " + userdata.userName + "&& usermod -aG sudo "+ userdata.userName )
-    return  os.system("useradd -p "+encPass+ " -s "+ userdata.shellType + " -d "+ userdata.homeDir + " -m " + " -c \"" + userdata.fullName + "\" " + userdata.userName )
+        return os.system("useradd -p " + encPass + " -s " + userdata.shellType + " -d " + userdata.homeDir + " -m " + " -c \"" + userdata.fullName + "\" " + userdata.userName + "&& usermod -aG sudo " + userdata.userName)
+    return os.system("useradd -p " + encPass + " -s " + userdata.shellType + " -d " + userdata.homeDir + " -m " + " -c \"" + userdata.fullName + "\" " + userdata.userName)
+
 
 def listUser():
     user_list = os.popen('awk -F: \'$2 != "*" && $2 !~ /^!/ { print $1}\' /etc/shadow').read()
@@ -38,12 +39,12 @@ def deleteUser(user):
 
 
 def getUserdata(username):
-    UserData.userName = os.popen("cat /etc/passwd | grep %s |awk -F : '{print $1}'" %username).read().strip()
+    UserData.userName = os.popen("cat /etc/passwd | grep %s |awk -F : '{print $1}'" % username).read().strip()
     if UserData.userName:
-        UserData.fullName = os.popen("cat /etc/passwd | grep %s |awk -F : '{print $5}'" %username).read().strip()
-        UserData.homeDir = os.popen("cat /etc/passwd | grep %s |awk -F : '{print $6}'" %username).read().strip()
-        UserData.shellType = os.popen("cat /etc/passwd | grep %s |awk -F : '{print $7}'" %username).read().strip()
-        if os.popen("sudo -l -U %s | grep ALL" %UserData.userName).read().strip():
+        UserData.fullName = os.popen("cat /etc/passwd | grep %s |awk -F : '{print $5}'" % username).read().strip()
+        UserData.homeDir = os.popen("cat /etc/passwd | grep %s |awk -F : '{print $6}'" % username).read().strip()
+        UserData.shellType = os.popen("cat /etc/passwd | grep %s |awk -F : '{print $7}'" % username).read().strip()
+        if os.popen("sudo -l -U %s | grep ALL" % UserData.userName).read().strip():
             UserData.userSudo = True
         else:
             UserData.userSudo = False
@@ -54,23 +55,24 @@ def getUserdata(username):
 
 def updateUserdata(userdata):
     status = 0
-    status += os.system("usermod -c \"%s\" %s" %(userdata.fullName, old_user_name)) #updating full name
-    status += os.system("usermod -d %s %s" %(userdata.homeDir, old_user_name)) #updating home dir
-    status += os.system("usermod -s %s %s" %(userdata.shellType, old_user_name)) #updating shell
-    #updating sudo
+    status += os.system("usermod -c \"%s\" %s" % (userdata.fullName, old_user_name))  # updating full name
+    status += os.system("usermod -d %s %s" % (userdata.homeDir, old_user_name))  # updating home dir
+    status += os.system("usermod -s %s %s" % (userdata.shellType, old_user_name))  # updating shell
+    # updating sudo
     if userdata.userSudo == "True":
         print "Adding sudo"
-        status += os.system("usermod -aG sudo %s" %old_user_name)
+        status += os.system("usermod -aG sudo %s" % old_user_name)
     elif userdata.userSudo == "False":
         print "Removing sudo"
-        status += os.system("deluser %s sudo" %old_user_name)
-    #updating username
-    status += os.system("usermod -l %s %s" %(userdata.userName, old_user_name))
+        status += os.system("deluser %s sudo" % old_user_name)
+    # updating username
+    status += os.system("usermod -l %s %s" % (userdata.userName, old_user_name))
     if status == 0:
         return True
     return status
 
-def validateUserdata(userdata, update = False):
+
+def validateUserdata(userdata, update=False):
     user_regx = re.compile('^[a-z0-9_]{0,30}$')
     if not user_regx.match(userdata.userName):
         return "Not valid username"
@@ -78,7 +80,7 @@ def validateUserdata(userdata, update = False):
         if getUserdata(userdata.userName):
             return "Username already exist."
     success = 0
-    f = open ('/etc/shells', 'r')
+    f = open('/etc/shells', 'r')
     for line in iter(f):
         if userdata.shellType in line:
             success = 1
@@ -86,6 +88,7 @@ def validateUserdata(userdata, update = False):
     if not success:
         return "Shell is not valid"
     return 1
+
 
 @app.route('/')
 def form():
@@ -98,8 +101,7 @@ def manage_user():
     if manage_action == 'add':
         return render_template('form_add.html')
     else:
-        return render_template('form_list.html', users = listUser(), title = manage_action)
-
+        return render_template('form_list.html', users=listUser(), title=manage_action)
 
 
 @app.route('/adduser/', methods=['POST'])
@@ -119,21 +121,21 @@ def add_user():
         return "User created Successfully"
     else:
         return "Error creating user"
-    #return "Username: %s <br> FullName: %s <br> HomeDir: %s <br> Password: %s" %(user_name,full_name,home_dir,user_password)
 
 
 @app.route('/modifyuser/', methods=['POST'])
 def modify_user():
 
     user_data = getUserdata(request.form['userName'])
-    global old_user_name 
+    global old_user_name
     old_user_name = user_data.userName
     global old_user_sudo
     old_user_sudo = user_data.userSudo
     if user_data:
-        return render_template('form_modify.html',userdata = user_data)
+        return render_template('form_modify.html', userdata=user_data)
     else:
         return 'This user does not exist.'
+
 
 @app.route('/updateuser/', methods=['POST'])
 def update_user():
@@ -151,6 +153,7 @@ def update_user():
         return "User detailes updates successfully"
     return "User details updation failed"
 
+
 @app.route('/removeuser/', methods=['POST'])
 def remove_user():
     user_name = request.form['userName']
@@ -159,7 +162,6 @@ def remove_user():
         return "User removed successfully"
     else:
         return "Error removing user"
-    
 
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', port=80)
