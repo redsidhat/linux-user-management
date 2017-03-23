@@ -16,11 +16,11 @@
                   <input type="text" name="homeDir" value="{{ userdata.homeDir }}"> Home Directory<br>
                   <input type="text" name="shellType" value="{{ userdata.shellType }}"> Shell<br> 
                   {% if userdata.userSudo %}
-                    <input type="radio" name="userSudo" checked="checked"> True
-                    <input type="radio" name="userSudo" > False     : Sudo<br>
+                    <input type="radio" name="userSudo" value="True" checked="checked"> True
+                    <input type="radio" name="userSudo" value="False" > False     : Sudo<br>
                   {% else %}
-                    <input type="radio" name="userSudo" > True
-                    <input type="radio" name="userSudo" checked="checked" > False   : Sudo<br>
+                    <input type="radio" name="userSudo" value="True" > True
+                    <input type="radio" name="userSudo" value="False" checked="checked" > False   : Sudo<br>
                   {% endif %}
                   <input type="password" name="userPassword" value="really ?"> Password<br>  
                   <input type="submit" />

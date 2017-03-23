@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, url_for
 import os
 import crypt
 from jinja2 import Template
-
+import re
 
 
 class UserData():
@@ -54,21 +54,38 @@ def getUserdata(username):
 
 def updateUserdata(userdata):
     status = 0
-    print old_user_name
-    print old_user_sudo
     status += os.system("usermod -c \"%s\" %s" %(userdata.fullName, old_user_name)) #updating full name
     status += os.system("usermod -d %s %s" %(userdata.homeDir, old_user_name)) #updating home dir
     status += os.system("usermod -s %s %s" %(userdata.shellType, old_user_name)) #updating shell
     #updating sudo
-    if userdata.userSudo == "True" and old_user_sudo == "False":
+    if userdata.userSudo == "True":
+        print "Adding sudo"
         status += os.system("usermod -aG sudo %s" %old_user_name)
-    elif userdata.userSudo == "False" and old_user_sudo == "True":
+    elif userdata.userSudo == "False":
+        print "Removing sudo"
         status += os.system("deluser %s sudo" %old_user_name)
     #updating username
     status += os.system("usermod -l %s %s" %(userdata.userName, old_user_name))
     if status == 0:
         return True
     return status
+
+def validateUserdata(userdata, update = False):
+    user_regx = re.compile('^[a-z0-9_]{0,30}$')
+    if not user_regx.match(userdata.userName):
+        return "Not valid username"
+    if not update:
+        if getUserdata(userdata.userName):
+            return "Username already exist."
+    success = 0
+    f = open ('/etc/shells', 'r')
+    for line in iter(f):
+        if userdata.shellType in line:
+            success = 1
+    f.close
+    if not success:
+        return "Shell is not valid"
+    return 1
 
 @app.route('/')
 def form():
@@ -84,6 +101,7 @@ def manage_user():
         return render_template('form_list.html', users = listUser(), title = manage_action)
 
 
+
 @app.route('/adduser/', methods=['POST'])
 def add_user():
     UserData.userName = request.form['userName']
@@ -92,6 +110,10 @@ def add_user():
     UserData.shellType = request.form['shellType']
     UserData.userPassword = request.form['userPassword']
     UserData.userSudo = request.form['userSudo']
+    valid = validateUserdata(UserData)
+    if valid != 1:
+        return valid
+
     status = createUser(UserData)
     if status == 0:
         return "User created Successfully"
@@ -122,6 +144,9 @@ def update_user():
     UserData.shellType = request.form['shellType']
     UserData.userPassword = request.form['userPassword']
     UserData.userSudo = request.form['userSudo']
+    valid = validateUserdata(UserData)
+    if valid != 1:
+        return valid
     if updateUserdata(UserData):
         return "User detailes updates successfully"
     return "User details updation failed"
@@ -137,4 +162,4 @@ def remove_user():
     
 
 if __name__ == '__main__':
-  app.run()
+  app.run(host='0.0.0.0', port=80)
